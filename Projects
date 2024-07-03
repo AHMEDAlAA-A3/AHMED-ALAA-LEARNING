@@ -1,1 +1,338 @@
+import tkinter as tk
+from tkinter import messagebox
+
+class User:
+    def __init__(self):
+        self.name = input("Hello Sir, Please Enter Your Name: ")
+        while True:
+            try:
+                self.age = int(input("Please Enter Your Age: "))
+                break
+            except ValueError:
+                print(f"Hello '{self.name}', Please enter a valid number for your age.")
+        self.number = input("Enter Your Phone Number: ")
+        self.gender = input("Type Your Gender: ")
+        print(f"I Wish You Enjoy My Library, '{self.name}'")
+
+class Genre:
+    def __init__(self, genre_name):
+        self.genre_name = genre_name
+
+class Library:
+    def __init__(self):
+        self.name = "AHMED'S LIBRARY"
+        self.books = {
+            "Don Quixote": "Classic",
+            "Jane Eyre": "Romance",
+            "Little Women": "Fiction",
+            "Dracula": "Horror",
+        }
+        self.borrowed_books = {}
+
+    def borrow_book(self, book_user, age_of_user):
+        if book_user.lower() == "dracula" and age_of_user is not None:
+            if age_of_user < 18:
+                return "Sorry, the book may not be suitable for you."
+
+        if book_user in self.books:
+            self.borrowed_books[book_user] = self.books.pop(book_user)
+            return f"The book '{book_user}' has been borrowed successfully."
+        else:
+            return "The book is not available, try again later."
+
+    def return_book(self, the_returned_book):
+        if the_returned_book in self.borrowed_books:
+            self.books[the_returned_book] = self.borrowed_books.pop(the_returned_book)
+            return f"The book '{the_returned_book}' has been returned successfully."
+        else:
+            return "This book was not borrowed from our library."
+
+
+class BookManager:
+    def __init__(self):
+        self.name_of_owner = "ahmed"
+        self._password = "123"
+
+    def _check_password(self, password):
+        if password == self._password:
+            return True
+        else:
+            return False
+
+    def add_book(self, library, title, genre, password):
+        if self._check_password(password):
+            if title in library.books:
+                return f"The book '{title}' is already in the library."
+            else:
+                library.books[title] = genre
+                return f"The book '{title}' with genre '{genre}' has been added to the library."
+        else:
+            return "You don't have access for this operation."
+
+    def remove_book(self, library, title, password):
+        if self._check_password(password):
+            if title in library.books:
+                del library.books[title]
+                return f"The book '{title}' has been removed from the library."
+            else:
+                return "The book is not in the library."
+        else:
+            return "You don't have access for this operation."
+
+class Gui:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Library Home Page")
+        self.root.geometry("700x500")
+        self.root.configure(bg='#222831')
+
+
+        self.label1 = tk.Label(self.root, text="Welcome To Ahmed's Library System.", font=("Prompat", 25), pady=20,  bg='#222831', fg='#00ADB5')
+        self.label1.pack()
+
+        self.manage_library_button = tk.Button(self.root, text="Library", width=10, font=("Playwrite England SemiJoined", 25, "bold"), command=self.choose2, bg='#222831', fg='#EEEEEE')
+        self.manage_library_button.pack(pady=20)
+
+        self.bookmanager_button = tk.Button(self.root, text="Book Manager", width=12, font=("Playwrite England SemiJoined", 25, "bold"), command=self.login, bg='#222831', fg='#EEEEEE')
+        self.bookmanager_button.pack(pady=20)
+
+        self.admin_username = "ahmed"
+        self.admin_password = "123"
+
+        self.book_manager = BookManager()
+        self.library = Library()
+
+    def choose2(self):
+        self.choose_win = tk.Toplevel()
+        self.choose_win.title("Borrow or Return")
+        self.choose_win.geometry("500x400")
+        self.choose_win.configure(bg='#222831')
+
+        self.borrowlist_btn = tk.Button(self.choose_win, text="Borrow Books", font=("Prompt", 25, "bold"), command=self.borrowbook_window)
+        self.borrowlist_btn.pack(pady=20)
+
+        self.returnlist_btn = tk.Button(self.choose_win, text="Return Books", font=("Prompt", 25, "bold"), command=self.returnedbook_window)
+        self.returnlist_btn.pack(pady=20)
+
+        self.view_books_button = tk.Button(self.choose_win, text="View Available Books", font=("Prompt", 25, "bold"), command=self.view_books_window)
+        self.view_books_button.pack(pady=20)
+
+    def view_books_window(self):
+        self.view_books_win = tk.Toplevel()
+        self.view_books_win.title("Available Books")
+        self.view_books_win.geometry("500x300")
+        self.view_books_win.configure(bg='#222831')
+
+        self.view_books_label = tk.Label(self.view_books_win, text="Available Books", font=("Prompt", 25, "bold"), bg='#393E46', fg='#00ADB5')
+        self.view_books_label.pack(pady=20)
+
+        self.books_listbox = tk.Listbox(self.view_books_win, font=("Prompt", 15, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.books_listbox.pack(pady=10, padx=10, fill=tk.BOTH,)
+
+        for book, genre in self.library.books.items():
+            self.books_listbox.insert(tk.END, f"{book} ({genre})")
+
+    def borrowbook_window(self):
+        self.extra_window = tk.Toplevel()
+        self.extra_window.title("Borrow Book")
+        self.extra_window.geometry("400x500")
+        self.extra_window.configure(bg='#222831')
+
+        self.borrow_book_label = tk.Label(self.extra_window, text="Borrow Book", font=("Prompt", 25, "bold"), bg='#393E46', fg='#00ADB5')
+        self.borrow_book_label.pack(pady=20)
+
+        self.nameofborrowbook_label = tk.Label(self.extra_window, text="Write The Name Of The Book:", font=("Prompt", 15, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.nameofborrowbook_label.pack(pady=10)
+
+        self.nameofborrowbook_entry = tk.Entry(self.extra_window, font=("Prompt", 15, "bold"))
+        self.nameofborrowbook_entry.pack(pady=10)
+
+        self.age_label = tk.Label(self.extra_window, text="Enter Your Age:", font=("Prompt", 15, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.age_label.pack(pady=10)
+
+        self.age_entry = tk.Entry(self.extra_window, font=("Prompt", 15, "bold"))
+        self.age_entry.pack(pady=10)
+
+        self.submit_button = tk.Button(self.extra_window, text="Submit", font=("Prompt", 15, "bold"), bg='#393E46', fg='#00ADB5', command=self.submit_borrow)
+        self.submit_button.pack(pady=20)
+
+    def submit_borrow(self):
+        book_name = self.nameofborrowbook_entry.get()
+        try:
+            age = int(self.age_entry.get())
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid age.")
+            return
+
+        if book_name == "":
+            messagebox.showerror("Error", "Please enter the name of the book.")
+            return
+
+        result = self.library.borrow_book(book_name, age)
+        if "successfully" in result:
+            messagebox.showinfo("Success", result)
+        else:
+            messagebox.showerror("Error", result)
+
+    def returnedbook_window(self):
+        self.return_win = tk.Toplevel()
+        self.return_win.title("Return Book")
+        self.return_win.geometry("500x300")
+        self.return_win.configure(bg='#222831')
+
+        self.return_win_labl = tk.Label(self.return_win, text="Return Book", font=("Prompt", 30, "bold"), bg='#393E46', fg='#00ADB5')
+        self.return_win_labl.pack(pady=20)
+
+        self.return_win_entry = tk.Entry(self.return_win, font=("Prompt", 25, "bold"))
+        self.return_win_entry.pack(pady=20)
+
+        self.submit_button2 = tk.Button(self.return_win, text="Submit", font=("Prompt", 15, "bold"), bg='#393E46', fg='#00ADB5', command=self.submit_return)
+        self.submit_button2.pack(pady=20)
+
+    def submit_return(self):
+        book_name = self.return_win_entry.get()
+        if book_name.strip() == "":
+            messagebox.showerror("Error", "Please enter the name of the book.")
+            return
+
+        result = self.library.return_book(book_name)
+        messagebox.showinfo("Success", result)
+
+    def login(self):
+        self.login_frame = tk.Toplevel()
+        self.login_frame.title("Login page")
+        self.login_frame.geometry("550x600")
+        self.login_frame.configure(bg='#222831')
+
+        self.login_label = tk.Label(self.login_frame, text="Login", font=("Prompt", 50, "bold"), bg='#222831', fg='#00ADB5')
+        self.login_label.grid(row=0, column=0, columnspan=2, pady=70, padx=30)
+
+        self.username_login_label = tk.Label(self.login_frame, text="User Name:", font=("Prompt", 20, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.username_login_label.grid(row=1, column=0)
+
+        self.login_entry = tk.Entry(self.login_frame, width=20, font=("Prompt", 20, "bold"))
+        self.login_entry.grid(row=1, column=1)
+
+        self.password_login_label = tk.Label(self.login_frame, text="Password:", font=("Prompt", 20, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.password_login_label.grid(row=2, column=0)
+
+        self.password_entry = tk.Entry(self.login_frame, width=20, font=("Prompt", 20, "bold"), show="*")
+        self.password_entry.grid(row=2, column=1, pady=10, padx=10)
+
+        self.button_login_button = tk.Button(self.login_frame, text="Login", font=("Prompt", 20, "bold"), bg='#393E46', fg='#00ADB5', command=self.check_login)
+        self.button_login_button.grid(row=3, column=0, columnspan=2, pady=30)
+
+    def check_login(self):
+        username = self.login_entry.get()
+        password = self.password_entry.get()
+
+        if username == "" or password == "":
+            messagebox.showerror("Error", "Please enter both username and password.")
+            return
+
+        if username == self.admin_username and password == self.admin_password:
+            messagebox.showinfo("Login Successful", "Welcome Mr/ Ahmed.")
+            self.admin_control_panel()
+        else:
+            messagebox.showerror("Login Failed", "You Don't Have Access For This Operation.")
+
+    def admin_control_panel(self):
+        self.admin_panel = tk.Toplevel()
+        self.admin_panel.title("Admin Control Panel")
+        self.admin_panel.geometry("400x300")
+        self.admin_panel.configure(bg='#222831')
+
+        self.add_book_button = tk.Button(self.admin_panel, text="Add Book", font=("Prompt", 20, "bold"), bg='#393E46', fg='#EBF4F6', command=self.add_book_window)
+        self.add_book_button.pack(pady=30)
+
+        self.remove_book_button = tk.Button(self.admin_panel, text="Remove Book", font=("Prompt", 20, "bold"), bg='#393E46', fg='#EBF4F6', command=self.remove_book_window)
+        self.remove_book_button.pack(pady=20)
+
+    def add_book_window(self):
+        self.add_book_win = tk.Toplevel()
+        self.add_book_win.title("Add Book")
+        self.add_book_win.geometry("500x600")
+        self.add_book_win.configure(bg='#222831')
+
+        self.add_book_label = tk.Label(self.add_book_win, text="Add Book", font=("Prompt", 25, "bold"), bg='#222831', fg='#00ADB5')
+        self.add_book_label.pack(pady=20)
+
+        self.title_label = tk.Label(self.add_book_win, text="Title:", font=("Prompt", 15, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.title_label.pack(pady=10)
+
+        self.title_entry = tk.Entry(self.add_book_win, font=("Prompt", 15, "bold"))
+        self.title_entry.pack(pady=10)
+
+        self.genre_label = tk.Label(self.add_book_win, text="Genre:", font=("Prompt", 15, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.genre_label.pack(pady=10)
+
+        self.genre_entry = tk.Entry(self.add_book_win, font=("Prompt", 15, "bold"))
+        self.genre_entry.pack(pady=10)
+
+        self.password_label = tk.Label(self.add_book_win, text="Admin Password:", font=("Prompt", 15, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.password_label.pack(pady=10)
+
+        self.password_entry = tk.Entry(self.add_book_win, font=("Prompt", 15, "bold"), show="*")
+        self.password_entry.pack(pady=10)
+
+        self.submit_button = tk.Button(self.add_book_win, text="Submit", font=("Prompt", 15, "bold"), bg='#393E46', fg='#00ADB5', command=self.submit_add_book)
+        self.submit_button.pack(pady=20)
+
+    def submit_add_book(self):
+        title = self.title_entry.get()
+        genre = self.genre_entry.get()
+        password = self.password_entry.get()
+
+        if title.strip() == "" or genre.strip() == "" or password.strip() == "":
+            messagebox.showerror("Error", "Please fill in all fields.")
+            return
+
+        result = self.book_manager.add_book(self.library, title, genre, password)
+        if "successfully" in result:
+            messagebox.showinfo("Success", result)
+        else:
+            messagebox.showerror("Error", result)
+
+    def remove_book_window(self):
+        self.remove_book_win = tk.Toplevel()
+        self.remove_book_win.title("Remove Book")
+        self.remove_book_win.geometry("500x600")
+        self.remove_book_win.configure(bg='#222831')
+
+        self.remove_book_label = tk.Label(self.remove_book_win, text="Remove Book", font=("Prompt", 25, "bold"), bg='#222831', fg='#00ADB5')
+        self.remove_book_label.pack(pady=20)
+
+        self.title_label = tk.Label(self.remove_book_win, text="Title:", font=("Prompt", 15, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.title_label.pack(pady=10)
+
+        self.title_entry = tk.Entry(self.remove_book_win, font=("Prompt", 15, "bold"))
+        self.title_entry.pack(pady=10)
+
+        self.password_label = tk.Label(self.remove_book_win, text="Admin Password:", font=("Prompt", 15, "bold"), bg='#393E46', fg='#EBF4F6')
+        self.password_label.pack(pady=10)
+
+        self.password_entry = tk.Entry(self.remove_book_win, font=("Prompt", 15, "bold"), show="*")
+        self.password_entry.pack(pady=10)
+
+        self.submit_button = tk.Button(self.remove_book_win, text="Submit", font=("Prompt", 15, "bold"), bg='#393E46', fg='#00ADB5', command=self.submit_remove_book)
+        self.submit_button.pack(pady=20)
+
+    def submit_remove_book(self):
+        title = self.title_entry.get()
+        password = self.password_entry.get()
+
+        if title== "" or password == "":
+            messagebox.showerror("Error", "Please fill in all fields.")
+            return
+
+        result = self.book_manager.remove_book(self.library, title, password)
+        if "successfully" in result:
+            messagebox.showinfo("Success", result)
+        else:
+            messagebox.showerror("Error", result)
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = Gui(root)
+    root.mainloop()
 
